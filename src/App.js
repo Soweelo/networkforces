@@ -2,8 +2,9 @@ import "./styles.css";
 import * as d3 from "d3";
 import { useEffect, useMemo, useState } from "react";
 
-function ForceGraph({ nodes, charge }) {
+function ForceGraph({ nodes, charge,links }) {
   const [animatedNodes, setAnimatedNodes] = useState([]);
+  const [animatedLinks, setAnimatedLinks] = useState([]);
 
   // re-create animation every time nodes change
   useEffect(() => {
@@ -12,12 +13,14 @@ function ForceGraph({ nodes, charge }) {
       .force("x", d3.forceX(400))
       .force("y", d3.forceY(300))
       .force("charge", d3.forceManyBody().strength(charge))
-      .force("collision", d3.forceCollide(5));
+      .force("collision", d3.forceCollide(5))
+        .force("links", d3.forceLink());
 
     // update state on every frame
-    simulation.on("tick", () => {
-      setAnimatedNodes([...simulation.nodes()]);
-    });
+      simulation.on("tick", () => {
+          setAnimatedNodes([...simulation.nodes()])
+          setAnimatedLinks([...simulation.links()])
+      });
 
     // copy nodes into simulation
     simulation.nodes([...nodes]);
@@ -57,6 +60,12 @@ export default function App() {
     []
   );
 
+  //create links
+    const links = {
+        source: 1,
+        target: 3
+    }
+
   return (
     <div className="App">
       <h1>React & D3 force graph</h1>
@@ -70,7 +79,7 @@ export default function App() {
         onChange={(e) => setCharge(e.target.value)}
       />
       <svg width="800" height="600">
-        <ForceGraph nodes={nodes} charge={charge} />
+        <ForceGraph nodes={nodes} charge={charge} links={links} />
       </svg>
     </div>
   );
